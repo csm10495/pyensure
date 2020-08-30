@@ -6,7 +6,7 @@ setup(
     name='pyensure',
     author='csm10495',
     author_email='csm10495@gmail.com',
-    url='https://github.com/csm10495/tvdb_rss',
+    url='https://github.com/csm10495/pyensure',
     version='0.0.1',
     packages=['pyensure'],
     license='MIT License',
