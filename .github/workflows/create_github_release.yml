@@ -1,4 +1,16 @@
 on: push
+name: Test
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          cd $GITHUB_WORKSPACE
+          python -m pip install --upgrade pip
+          pip install pytest
+          pytest -v
+
 name: Release
 jobs:
   release:
