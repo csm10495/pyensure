@@ -1,4 +1,5 @@
 import os
+import pathlib
 import pytest
 import subprocess
 import sys
@@ -11,7 +12,9 @@ import state as _state
 THIS_DIR_WITH_QUOTES = f"'{THIS_DIR}'"
 
 @pytest.fixture()
-def state():
+def state(tmpdir):
+    os.chdir(tmpdir)
+
     pytest = sys.modules['pytest']
     saved_path = sys.path[:]
     s = _state.State()
@@ -23,7 +26,6 @@ def state():
         sys.modules['pytest'] = pytest
         s.unhook()
         s._cleanup_site_packages()
-
 
 def test_pip_remove_and_reinstall(state):
     '''
@@ -58,4 +60,24 @@ def test_install_and_import_via_hook_then_unhook(state):
     state._cleanup_site_packages()
     with pytest.raises(ImportError):
         import pytest as __pytest
+
+def test_running_as_module_main(state):
+    SCRIPT = '''
+import sys
+from pyensure import remove_site_packages_from_sys_path
+remove_site_packages_from_sys_path()
+
+import pytest
+import serial
+import psutil
+
+assert pytest
+assert serial
+assert psutil
+
+assert sys.argv[-1] == \'hello\''''
+    script = pathlib.Path('script.py').absolute()
+    script.write_text(SCRIPT)
+
+    assert subprocess.call(f'{sys.executable} -m pyensure {script} hello', shell=True, cwd=f'{THIS_DIR}/../') == 0
 
